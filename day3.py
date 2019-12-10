@@ -4,6 +4,9 @@
 Created on Mon Dec  9 12:08:24 2019
 
 @author: georg
+
+https://www.astro.rug.nl/~bytesnbiscuits/
+
 """
 
 import numpy as np
