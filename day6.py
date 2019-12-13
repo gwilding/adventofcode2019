@@ -13,18 +13,22 @@ import numpy as np
 def main():
     """Advent of code day 6."""
     
-#    orbit_inputs = ['COM)B','B)C','C)D','D)E','E)F','B)G','G)H','D)I','E)J','J)K','K)L']
-    orbit_inputs = []
-    input_path = './input_day6.txt'
-    with open(input_path) as fp:
-       lines = fp.readlines()
-    direct_orbit_list = [line.strip().split(')') for line in lines]
+    orbit_inputs = ['COM)B','B)C','C)D','D)E','E)F','B)G','G)H','D)I','E)J','J)K','K)L']
+    orbit_inputs = ['COM)B','B)C','C)D','D)E','E)F','B)G','G)H','D)I','E)J','J)K','K)L','K)YOU','I)SAN']
+    direct_orbit_list = []
+    for orbit in orbit_inputs:
+        direct_orbit_list.append(orbit.split(')'))
+    
+#    orbit_inputs = []
+#    input_path = './input_day6.txt'
+#    with open(input_path) as fp:
+#       lines = fp.readlines()
+#    direct_orbit_list = [line.strip().split(')') for line in lines]
 
     orbit_tree = {}
     fixed_orbit_list = []
     
-#    for orbit in orbit_inputs:
-#        direct_orbit_list.append(orbit.split(')'))
+
 #    print(direct_orbit_list)
     
     # search for COM
@@ -66,7 +70,26 @@ def main():
         orbits_at_depth.append(len(k))
     orbits_at_depth = np.array(orbits_at_depth)
     print("Indirect orbits:",sum(np.array(range(len(orbits_at_depth)))*orbits_at_depth))
-        
+    
+    orbit_tree = build_orbit_tree(orbit_inputs)
+    
+def build_orbit_tree(orbit_inputs):
+    orbit_tree = {}
+    for unformatted_orbit in orbit_inputs:
+        orbit_tree[unformatted_orbit.split(')')[1]] = unformatted_orbit.split(')')[0]
+    return orbit_tree
+
+def tree_path_length(orbit_tree, orbit_list):
+    parent_orbit_list = []
+    for orbit in orbit_list:
+        parent_orbit_list.append([])
+        parent_orbit = orbit
+        while parent_orbit != 'COM':
+            parent_orbit = orbit_tree[parent_orbit]
+            parent_orbit_list[-1].append(parent_orbit)
+    min_depth = min([len(o) for o in parent_orbit_list])
+    [o[::-1][:min_depth] for o in parent_orbit_list]
+#    common_orbit = 
     
 if __name__ == '__main__':
     main()
