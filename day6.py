@@ -13,19 +13,19 @@ import numpy as np
 def main():
     """Advent of code day 6."""
     
-    orbit_inputs = ['COM)B','B)C','C)D','D)E','E)F','B)G','G)H','D)I','E)J','J)K','K)L']
-    orbit_inputs = ['COM)B','B)C','C)D','D)E','E)F','B)G','G)H','D)I','E)J','J)K','K)L','K)YOU','I)SAN']
-    direct_orbit_list = []
-    for orbit in orbit_inputs:
-        direct_orbit_list.append(orbit.split(')'))
+#    orbit_inputs = ['COM)B','B)C','C)D','D)E','E)F','B)G','G)H','D)I','E)J','J)K','K)L']
+##    orbit_inputs = ['COM)B','B)C','C)D','D)E','E)F','B)G','G)H','D)I','E)J','J)K','K)L','K)YOU','I)SAN']
+#    direct_orbit_list = []
+#    for orbit in orbit_inputs:
+#        direct_orbit_list.append(orbit.split(')'))
     
-#    orbit_inputs = []
-#    input_path = './input_day6.txt'
-#    with open(input_path) as fp:
-#       lines = fp.readlines()
-#    direct_orbit_list = [line.strip().split(')') for line in lines]
+    orbit_inputs = []
+    input_path = './input_day6.txt'
+    with open(input_path) as fp:
+       lines = fp.readlines()
+    unformatted_orbit_list = [line.strip() for line in lines]
+    direct_orbit_list = [line.strip().split(')') for line in lines]
 
-    orbit_tree = {}
     fixed_orbit_list = []
     
 
@@ -38,7 +38,6 @@ def main():
         for orbit_index, orbit_pair in enumerate(direct_orbit_list):
             if 'COM' in orbit_pair:
                 found_orbit = direct_orbit_list.pop(orbit_index)
-                orbit_tree[found_orbit[0]] = {found_orbit[1]: {}}
                 tree_depth_list[0] = [found_orbit[0]]
                 tree_depth_list.append([])
                 tree_depth_list[1] = [found_orbit[1]]
@@ -71,7 +70,12 @@ def main():
     orbits_at_depth = np.array(orbits_at_depth)
     print("Indirect orbits:",sum(np.array(range(len(orbits_at_depth)))*orbits_at_depth))
     
-    orbit_tree = build_orbit_tree(orbit_inputs)
+    orbit_tree = build_orbit_tree(unformatted_orbit_list)
+    start_finish = ['YOU','SAN']
+    path_length,common_orbit,path = tree_path_length(orbit_tree,start_finish)
+    print(start_finish[0],' to ',start_finish[1],':',path_length)
+    
+    
     
 def build_orbit_tree(orbit_inputs):
     orbit_tree = {}
@@ -82,13 +86,30 @@ def build_orbit_tree(orbit_inputs):
 def tree_path_length(orbit_tree, orbit_list):
     parent_orbit_list = []
     for orbit in orbit_list:
+        if orbit not in orbit_tree.keys():
+            print("Orbit not in tree.")
+            return 0, [0], 0
         parent_orbit_list.append([])
         parent_orbit = orbit
         while parent_orbit != 'COM':
             parent_orbit = orbit_tree[parent_orbit]
             parent_orbit_list[-1].append(parent_orbit)
     min_depth = min([len(o) for o in parent_orbit_list])
-    [o[::-1][:min_depth] for o in parent_orbit_list]
+    shared_orbits = np.array([o[::-1][:min_depth] for o in parent_orbit_list])
+
+    common_path_length = np.max(np. where([len(set(shared_orbits[:,k]))==1 for k in range(min_depth)]))
+    common_orbit = shared_orbits[0,common_path_length]
+    # orbit paths, int if only 2 orbits matrix if more
+    if len(orbit_list) == 2:
+        path_lengths = len(parent_orbit_list[0]) + len(parent_orbit_list[1]) - 2*common_path_length - 2
+        path = parent_orbit_list[0][:-(common_path_length)] + parent_orbit_list[1][:-(common_path_length + 1)][::-1]
+    else:
+        print("Multiply orbits not implemented yet...")
+        path_lengths = 0
+        path = [0]
+    return path_lengths, common_orbit, path
+   
+   
 #    common_orbit = 
     
 if __name__ == '__main__':
